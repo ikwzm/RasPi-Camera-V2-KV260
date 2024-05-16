@@ -13,7 +13,7 @@
 		overlay0: __overlay__ {
 			#address-cells = <2>;
 			#size-cells = <2>;
-			firmware-name = "raspi-camera-v2-kv260.bin";
+			firmware-name = "raspi-camera-v2-kv260-1.bin";
 			resets = <&zynqmp_reset 116>;
 		};
 	};
