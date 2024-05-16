@@ -188,7 +188,7 @@ proc create_root_design { parentCell } {
   # Make sure parentObj is hier blk
   set parentType [get_property TYPE $parentObj]
   if { $parentType ne "hier" } {
-     catch {common::send_gid_msg -ssname BD::TCL -id 2091 -severity "ERROR" "Parent <$parentObj> has TYPE = <$parentType>. Expected to be <hier>."}
+     catch {common::send_msg_id "BD_TCL-101" "ERROR" "Parent <$parentObj> has TYPE = <$parentType>. Expected to be <hier>."}
      return
   }
 
@@ -198,19 +198,17 @@ proc create_root_design { parentCell } {
   # Set parent object as current
   current_bd_instance $parentObj
 
-
   # Create interface ports
-  set som240_1_connector_hda_iic_switch [ create_bd_intf_port -mode Master -vlnv xilinx.com:interface:iic_rtl:1.0 som240_1_connector_hda_iic_switch ]
-
-  set som240_1_connector_mipi_csi_raspi [ create_bd_intf_port -mode Slave -vlnv xilinx.com:interface:mipi_phy_rtl:1.0 som240_1_connector_mipi_csi_raspi ]
-
+  set hda_iic_switch [ create_bd_intf_port -mode Master -vlnv xilinx.com:interface:iic_rtl:1.0 hda_iic_switch ]
+  set mipi_csi_raspi [ create_bd_intf_port -mode Slave  -vlnv xilinx.com:interface:mipi_phy_rtl:1.0 mipi_csi_raspi ]
 
   # Create ports
-  set rpi_cam_en [ create_bd_port -dir O -from 0 -to 0 rpi_cam_en ]
+  set rpi_cam_en     [ create_bd_port -dir O -from 0 -to 0 rpi_cam_en ]
 
   # Create instance: axi_iic_0, and set properties
   set axi_iic_0 [ create_bd_cell -type ip -vlnv xilinx.com:ip:axi_iic:2.1 axi_iic_0 ]
   set_property -dict [ list \
+   CONFIG.IIC_BOARD_INTERFACE {som240_1_connector_hda_iic_switch} \
    CONFIG.IIC_FREQ_KHZ {400} \
    CONFIG.USE_BOARD_FLOW {true} \
  ] $axi_iic_0
@@ -260,9 +258,36 @@ proc create_root_design { parentCell } {
   # Create instance: mipi_csi2_rx_subsyst_0, and set properties
   set mipi_csi2_rx_subsyst_0 [ create_bd_cell -type ip -vlnv xilinx.com:ip:mipi_csi2_rx_subsystem:5.3 mipi_csi2_rx_subsyst_0 ]
   set_property -dict [ list \
-   CONFIG.CMN_NUM_PIXELS {2} \
+   CONFIG.AXIS_TDEST_WIDTH {4} \
+   CONFIG.CLK_LANE_IO_LOC {D7} \
+   CONFIG.CLK_LANE_IO_LOC_NAME {IO_L13P_T2L_N0_GC_QBC_66} \
+   CONFIG.CMN_NUM_LANES {2} \
+   CONFIG.CMN_NUM_PIXELS {1} \
+   CONFIG.CMN_PXL_FORMAT {RAW10} \
+   CONFIG.CMN_VC {All} \
+   CONFIG.CSI_BUF_DEPTH {4096} \
+   CONFIG.C_CLK_LANE_IO_POSITION {26} \
+   CONFIG.C_CSI_EN_ACTIVELANES {false} \
+   CONFIG.C_CSI_EN_CRC {false} \
+   CONFIG.C_CSI_FILTER_USERDATATYPE {false} \
+   CONFIG.C_DATA_LANE0_IO_POSITION {28} \
+   CONFIG.C_DATA_LANE1_IO_POSITION {30} \
+   CONFIG.C_DPHY_LANES {2} \
+   CONFIG.C_EN_BG0_PIN0 {false} \
+   CONFIG.C_EN_BG1_PIN0 {false} \
+   CONFIG.C_HS_LINE_RATE {912} \
+   CONFIG.C_HS_SETTLE_NS {145} \
+   CONFIG.C_STRETCH_LINE_RATE {1500} \
+   CONFIG.DATA_LANE0_IO_LOC {E5} \
+   CONFIG.DATA_LANE0_IO_LOC_NAME {IO_L14P_T2L_N2_GC_66} \
+   CONFIG.DATA_LANE1_IO_LOC {G6} \
+   CONFIG.DATA_LANE1_IO_LOC_NAME {IO_L15P_T2L_N4_AD11P_66} \
+   CONFIG.DPHYRX_BOARD_INTERFACE {som240_1_connector_mipi_csi_raspi} \
+   CONFIG.DPY_EN_REG_IF {false} \
+   CONFIG.DPY_LINE_RATE {912} \
+   CONFIG.HP_IO_BANK_SELECTION {66} \
    CONFIG.SupportLevel {1} \
-   CONFIG.USE_BOARD_FLOW {true} \
+   CONFIG.VFB_TU_WIDTH {1} \
  ] $mipi_csi2_rx_subsyst_0
 
   # Create instance: ps8_0_axi_periph, and set properties
@@ -402,7 +427,7 @@ proc create_root_design { parentCell } {
   add_fan_enable $zynq_ultra_ps_e_0 fan_en_b ttc0
 
   # Create interface connections
-  connect_bd_intf_net -intf_net axi_iic_0_IIC [get_bd_intf_ports som240_1_connector_hda_iic_switch] [get_bd_intf_pins axi_iic_0/IIC]
+  connect_bd_intf_net -intf_net axi_iic_0_IIC [get_bd_intf_ports hda_iic_switch] [get_bd_intf_pins axi_iic_0/IIC]
   connect_bd_intf_net -intf_net axi_smc_M00_AXI [get_bd_intf_pins axi_smc/M00_AXI] [get_bd_intf_pins zynq_ultra_ps_e_0/S_AXI_HP2_FPD]
   connect_bd_intf_net -intf_net mipi_csi2_rx_subsyst_0_video_out [get_bd_intf_pins mipi_csi2_rx_subsyst_0/video_out] [get_bd_intf_pins v_demosaic_0/s_axis_video]
   connect_bd_intf_net -intf_net ps8_0_axi_periph_1_M00_AXI [get_bd_intf_pins ps8_0_axi_periph_1/M00_AXI] [get_bd_intf_pins v_demosaic_0/s_axi_CTRL]
@@ -412,7 +437,7 @@ proc create_root_design { parentCell } {
   connect_bd_intf_net -intf_net ps8_0_axi_periph_1_M04_AXI [get_bd_intf_pins ps8_0_axi_periph_1/M04_AXI] [get_bd_intf_pins v_proc_ss_scaler/s_axi_ctrl]
   connect_bd_intf_net -intf_net ps8_0_axi_periph_M00_AXI [get_bd_intf_pins axi_iic_0/S_AXI] [get_bd_intf_pins ps8_0_axi_periph/M00_AXI]
   connect_bd_intf_net -intf_net ps8_0_axi_periph_M01_AXI [get_bd_intf_pins mipi_csi2_rx_subsyst_0/csirxss_s_axi] [get_bd_intf_pins ps8_0_axi_periph/M01_AXI]
-  connect_bd_intf_net -intf_net som240_1_connector_mipi_csi_raspi_1 [get_bd_intf_ports som240_1_connector_mipi_csi_raspi] [get_bd_intf_pins mipi_csi2_rx_subsyst_0/mipi_phy_if]
+  connect_bd_intf_net -intf_net mipi_csi_raspi_1 [get_bd_intf_ports mipi_csi_raspi] [get_bd_intf_pins mipi_csi2_rx_subsyst_0/mipi_phy_if]
   connect_bd_intf_net -intf_net v_demosaic_0_m_axis_video [get_bd_intf_pins v_demosaic_0/m_axis_video] [get_bd_intf_pins v_gamma_lut_0/s_axis_video]
   connect_bd_intf_net -intf_net v_frmbuf_wr_0_m_axi_mm_video [get_bd_intf_pins axi_smc/S00_AXI] [get_bd_intf_pins v_frmbuf_wr_0/m_axi_mm_video]
   connect_bd_intf_net -intf_net v_gamma_lut_0_m_axis_video [get_bd_intf_pins v_gamma_lut_0/m_axis_video] [get_bd_intf_pins v_proc_ss_csc/s_axis]

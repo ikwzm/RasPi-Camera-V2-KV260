@@ -29,6 +29,7 @@ if       {[info exists board_part ] && [string equal $board_part  "" ] == 0} {
     puts "ERROR: Please set board_part or device_part."
     return 1
 }
+set_property "board_connections"  {som240_1_connector xilinx.com:kv260_carrier:som240_1_connector:1.3}  [current_project]
 set_property "default_lib"        "xil_defaultlib" [current_project]
 set_property "simulator_language" "Mixed"          [current_project]
 set_property "target_language"    "VHDL"           [current_project]
