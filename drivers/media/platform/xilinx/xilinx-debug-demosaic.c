@@ -199,9 +199,14 @@ static int xdmsc_set_format(struct v4l2_subdev *subdev,
 	struct xdmsc_dev *xdmsc = to_xdmsc(subdev);
 	struct v4l2_mbus_framefmt *__format;
 
+        dev_info(xdmsc->xvip.dev, "%s start\n", __func__);
+        dev_info(xdmsc->xvip.dev, "%s fmt->pad=%d\n", __func__, fmt->pad);
+        
 	__format = __xdmsc_get_pad_format(xdmsc, sd_state, fmt->pad, fmt->which);
-	if (!__format)
+	if (!__format) {
+                dev_info(xdmsc->xvip.dev, "%s done(-EINVAL)\n", __func__);
 		return -EINVAL;
+        }
 
 	*__format = fmt->format;
 
@@ -215,7 +220,7 @@ static int xdmsc_set_format(struct v4l2_subdev *subdev,
 		    __format->code != MEDIA_BUS_FMT_RBG101010_1X30 &&
 		    __format->code != MEDIA_BUS_FMT_RBG121212_1X36 &&
 		    __format->code != MEDIA_BUS_FMT_RBG161616_1X48) {
-			dev_dbg(xdmsc->xvip.dev,
+			dev_info(xdmsc->xvip.dev,
 				"%s : Unsupported source media bus code format",
 				__func__);
 			__format->code = MEDIA_BUS_FMT_RBG888_1X24;
@@ -224,13 +229,17 @@ static int xdmsc_set_format(struct v4l2_subdev *subdev,
 
 	if (fmt->pad == XVIP_PAD_SINK) {
 		if (!xdmsc_is_format_bayer(xdmsc, __format->code)) {
-			dev_dbg(xdmsc->xvip.dev,
+			dev_info(xdmsc->xvip.dev,
 				"Unsupported Sink Pad Media format, defaulting to RGGB");
 			__format->code = MEDIA_BUS_FMT_SRGGB8_1X8;
 		}
 	}
 
+        dev_info(xdmsc->xvip.dev, "%s __format->width=%d\n" , __func__, __format->width);
+        dev_info(xdmsc->xvip.dev, "%s __format->height=%d\n", __func__, __format->height);
+        dev_info(xdmsc->xvip.dev, "%s __format->code=%d\n"  , __func__, __format->code);
 	fmt->format = *__format;
+        dev_info(xdmsc->xvip.dev, "%s done(0)\n", __func__);
 	return 0;
 }
 
