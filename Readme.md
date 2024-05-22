@@ -26,155 +26,113 @@ Current Status
 
 * Build Bitstream file : Success
 * Install Device tree  : Success
-* Setup video4linux    : Success?
-* Capture by camera    : Success?
+* Setup video4linux    : Success
+* Capture by camera    : Success
 
 
 Build Bitstream file
 ------------------------------------------------------------------------------------
 
-### Requirement
+[Build raspi-camera-v2-kv260-w8x1-hp0.bin](./fpga/raspi-camera-v2-w8x1-hp0/Readme.md)
 
-* Xilinx Vivado 2023.1
-
-### Download RasPi-Camera-V2-KV260
-
-```console
-shell$ git clone --depth 1 --recursive https://github.com/ikwzm/RasPi-Camera-V2-KV260
-```
-
-### Create Project
-
-```
-Vivado > Tools > Run Tcl Script... > RasPi-Camera-V2-KV260/fpga-1/create_project.tcl
-```
-
-### Implementation
-
-```
-Vivado > Tools > Run Tcl Script... > RasPi-Camera-V2-KV260/fpga-1/implementation.tcl
-```
-
-### Convert from Bitstream File to Binary File
-
-```console
-vivado% cd RasPi-Camera-V2-KV260/fpga-1
-vivado% bootgen -image raspi-camera-v2-kv260-1.bif -arch zynqmp -w -o ../raspi-camera-v2-kv260-1.bin
-```
-
-### Compress raspi-camera-v2-kv260.bin to raspi-camera-v2-kv260-1.bin.gz
-
-```console
-vivado% cd RasPi-Camera-V2-KV260/fpga-1
-vivado% gzip raspi-camera-v2-kv260-1.bin
-```
-
-Install Device Tree
+Install Bitstream and Device Tree
 ------------------------------------------------------------------------------------
 
-### Decompress raspi-camera-v2-kv260-1.bin.gz to raspi-camera-v2-kv260-1.bin
+### Decompress raspi-camera-v2-kv260-w8x1-hp0.bin.gz to raspi-camera-v2-kv260-w8x1-hp0.bin
 
 ```console
-shell$ gzip -d fpga-1/raspi-camera-v2-kv260.bin.gz
+shell$ gzip -d fpga/raspi-camera-v2-w8x1-hp0/raspi-camera-v2-kv260-w8x1-hp0.bin.gz
 ```
 
-### Copy fpga-1/raspi-camera-v2-kv260-1.bin to /lib/firmware
+### Copy fpga/raspi-camera-v2-w8x1-hp0/raspi-camera-v2-kv260-w8x1-hp0.bin to /lib/firmware
 
 ```console
-shell$ sudo cp fpga-1/raspi-camera-v2-kv260-1.bin /lib/firmware
+shell$ sudo cp fpga/raspi-camera-v2-w8x1-hp0/raspi-camera-v2-kv260-w8x1-hp0.bin /lib/firmware
 ```
 
-### Compile Device Tree Blob
+### Load Device Tree Overlay
 
 ```console
-shell$ dtc -I dts -O dtb -@ -o devicetrees/raspi-camera-v2-kv260-1.dtb devicetrees/raspi-camera-v2-kv260-1.dts
-devicetrees/raspi-camera-v2-kv260-1.dts:357.39-367.7: Warning (graph_child_address): /fragment@3/__overlay__/vcap_v_proc_ss_scaler/ports: graph node has single child node 'port@0', #address-cells/#size-cells are not necessary
-```
-
-### Load Device Tree
-
-```console
-shell$ sudo mkdir /config/device-tree/overlays/raspi-camera-v2-kv260-1
-shell$ sudo cp devicetrees/raspi-camera-v2-kv260-1.dtb /config/device-tree/overlays/raspi-camera-v2-kv260-1/dtbo
+shell$ sudo devicetrees/dtbo-config -i raspi-camera-v2-kv260-w8x1-hp0 --dts devicetrees/raspi-camera-v2-kv260-w8x1-hp0.dts
 ```
 
 ```console
 shell$ dmesg | tail -75
-[  107.524782] fpga_manager fpga0: writing raspi-camera-v2-kv260-1.bin to Xilinx ZynqMP FPGA Manager
-[  107.994683] OF: overlay: WARNING: memory leak will occur if overlay removed, property: /fpga-full/firmware-name
-[  108.004801] OF: overlay: WARNING: memory leak will occur if overlay removed, property: /fpga-full/resets
-[  108.015103] OF: overlay: WARNING: memory leak will occur if overlay removed, property: /__symbols__/overlay0
-[  108.024947] OF: overlay: WARNING: memory leak will occur if overlay removed, property: /__symbols__/overlay1
-[  108.034804] OF: overlay: WARNING: memory leak will occur if overlay removed, property: /__symbols__/afi0
-[  108.044300] OF: overlay: WARNING: memory leak will occur if overlay removed, property: /__symbols__/clocking0
-[  108.054234] OF: overlay: WARNING: memory leak will occur if overlay removed, property: /__symbols__/clocking1
-[  108.064157] OF: overlay: WARNING: memory leak will occur if overlay removed, property: /__symbols__/overlay2
-[  108.073990] OF: overlay: WARNING: memory leak will occur if overlay removed, property: /__symbols__/imx219_vana
-[  108.084085] OF: overlay: WARNING: memory leak will occur if overlay removed, property: /__symbols__/imx219_vdig
-[  108.094179] OF: overlay: WARNING: memory leak will occur if overlay removed, property: /__symbols__/imx219_vddl
-[  108.104273] OF: overlay: WARNING: memory leak will occur if overlay removed, property: /__symbols__/imx219_clk
-[  108.114284] OF: overlay: WARNING: memory leak will occur if overlay removed, property: /__symbols__/overlay3
-[  108.124125] OF: overlay: WARNING: memory leak will occur if overlay removed, property: /__symbols__/axi_iic_0
-[  108.134053] OF: overlay: WARNING: memory leak will occur if overlay removed, property: /__symbols__/iic_mux_0
-[  108.143979] OF: overlay: WARNING: memory leak will occur if overlay removed, property: /__symbols__/isa0_i2c0
-[  108.153901] OF: overlay: WARNING: memory leak will occur if overlay removed, property: /__symbols__/isa1_i2c1
-[  108.163820] OF: overlay: WARNING: memory leak will occur if overlay removed, property: /__symbols__/rpi_i2c2
-[  108.173656] OF: overlay: WARNING: memory leak will occur if overlay removed, property: /__symbols__/imx219
-[  108.183317] OF: overlay: WARNING: memory leak will occur if overlay removed, property: /__symbols__/imx219_0
-[  108.193152] OF: overlay: WARNING: memory leak will occur if overlay removed, property: /__symbols__/misc_clk_0
-[  108.203160] OF: overlay: WARNING: memory leak will occur if overlay removed, property: /__symbols__/mipi_csi2_rx_subsyst_0
-[  108.214210] OF: overlay: WARNING: memory leak will occur if overlay removed, property: /__symbols__/mipi_csi_portsmipi_csi2_rx_subsyst_0
-[  108.226475] OF: overlay: WARNING: memory leak will occur if overlay removed, property: /__symbols__/mipi_csi_port1mipi_csi2_rx_subsyst_0
-[  108.238738] OF: overlay: WARNING: memory leak will occur if overlay removed, property: /__symbols__/mipi_csirx_outmipi_csi2_rx_subsyst_0
-[  108.251009] OF: overlay: WARNING: memory leak will occur if overlay removed, property: /__symbols__/mipi_csi_port0mipi_csi2_rx_subsyst_0
-[  108.263283] OF: overlay: WARNING: memory leak will occur if overlay removed, property: /__symbols__/mipi_csi_inmipi_csi2_rx_subsyst_0
-[  108.275294] OF: overlay: WARNING: memory leak will occur if overlay removed, property: /__symbols__/misc_clk_1
-[  108.285299] OF: overlay: WARNING: memory leak will occur if overlay removed, property: /__symbols__/v_demosaic_0
-[  108.295482] OF: overlay: WARNING: memory leak will occur if overlay removed, property: /__symbols__/demosaic_portsv_demosaic_0
-[  108.306880] OF: overlay: WARNING: memory leak will occur if overlay removed, property: /__symbols__/demosaic_port1v_demosaic_0
-[  108.318275] OF: overlay: WARNING: memory leak will occur if overlay removed, property: /__symbols__/demo_outv_demosaic_0
-[  108.329150] OF: overlay: WARNING: memory leak will occur if overlay removed, property: /__symbols__/demosaic_port0v_demosaic_0
-[  108.340553] OF: overlay: WARNING: memory leak will occur if overlay removed, property: /__symbols__/v_demosaic_0mipi_csi2_rx_subsyst_0
-[  108.352651] OF: overlay: WARNING: memory leak will occur if overlay removed, property: /__symbols__/v_frmbuf_wr_0
-[  108.362915] OF: overlay: WARNING: memory leak will occur if overlay removed, property: /__symbols__/v_gamma_lut_0
-[  108.373189] OF: overlay: WARNING: memory leak will occur if overlay removed, property: /__symbols__/gamma_portsv_gamma_lut_0
-[  108.384418] OF: overlay: WARNING: memory leak will occur if overlay removed, property: /__symbols__/gamma_port1v_gamma_lut_0
-[  108.395643] OF: overlay: WARNING: memory leak will occur if overlay removed, property: /__symbols__/gamma_outv_gamma_lut_0
-[  108.406691] OF: overlay: WARNING: memory leak will occur if overlay removed, property: /__symbols__/gamma_port0v_gamma_lut_0
-[  108.417913] OF: overlay: WARNING: memory leak will occur if overlay removed, property: /__symbols__/v_gamma_lut_0v_demosaic_0
-[  108.429222] OF: overlay: WARNING: memory leak will occur if overlay removed, property: /__symbols__/v_proc_ss_csc
-[  108.439493] OF: overlay: WARNING: memory leak will occur if overlay removed, property: /__symbols__/csc_portsv_proc_ss_csc
-[  108.450543] OF: overlay: WARNING: memory leak will occur if overlay removed, property: /__symbols__/csc_port1v_proc_ss_csc
-[  108.461592] OF: overlay: WARNING: memory leak will occur if overlay removed, property: /__symbols__/csc_outv_proc_ss_csc
-[  108.472468] OF: overlay: WARNING: memory leak will occur if overlay removed, property: /__symbols__/csc_port0v_proc_ss_csc
-[  108.483520] OF: overlay: WARNING: memory leak will occur if overlay removed, property: /__symbols__/v_proc_ss_cscv_gamma_lut_0
-[  108.494916] OF: overlay: WARNING: memory leak will occur if overlay removed, property: /__symbols__/v_proc_ss_scaler
-[  108.505448] OF: overlay: WARNING: memory leak will occur if overlay removed, property: /__symbols__/scaler_portsv_proc_ss_scaler
-[  108.517022] OF: overlay: WARNING: memory leak will occur if overlay removed, property: /__symbols__/scaler_port1v_proc_ss_scaler
-[  108.528594] OF: overlay: WARNING: memory leak will occur if overlay removed, property: /__symbols__/sca_outv_proc_ss_scaler
-[  108.539739] OF: overlay: WARNING: memory leak will occur if overlay removed, property: /__symbols__/scaler_port0v_proc_ss_scaler
-[  108.551315] OF: overlay: WARNING: memory leak will occur if overlay removed, property: /__symbols__/v_proc_ss_scalerv_proc_ss_csc
-[  108.562975] OF: overlay: WARNING: memory leak will occur if overlay removed, property: /__symbols__/vcap_portsv_proc_ss_scaler
-[  108.574376] OF: overlay: WARNING: memory leak will occur if overlay removed, property: /__symbols__/v_frmbuf_wr_0v_proc_ss_scaler
-[  108.655678] i2c i2c-3: Added multiplexed i2c bus 4
-[  108.656722] i2c i2c-3: Added multiplexed i2c bus 5
-[  108.688574] i2c i2c-3: Added multiplexed i2c bus 6
-[  108.692862] i2c i2c-3: Added multiplexed i2c bus 7
-[  108.692884] pca954x 3-0074: registered 4 multiplexed busses for I2C switch pca9546
-[  108.704575] xilinx-frmbuf a0020000.v_frmbuf_wr: Xilinx AXI frmbuf DMA_DEV_TO_MEM
-[  108.708985] xilinx-frmbuf a0020000.v_frmbuf_wr: Xilinx AXI FrameBuffer Engine Driver Probed!!
-[  108.729058] xilinx-demosaic a0010000.v_demosaic: Xilinx Video Demosaic Probe Successful
-[  108.749375] xilinx-gamma-lut a0030000.v_gamma_lut: Xilinx 10-bit Video Gamma Correction LUT registered
-[  108.758361] xilinx-vpss-csc a0040000.v_proc_ss_csc: VPSS CSC 8-bit Color Depth Probe Successful
-[  108.760351] xilinx-vpss-scaler a0080000.v_proc_ss_scaler: Num Hori Taps 6
-[  108.760365] xilinx-vpss-scaler a0080000.v_proc_ss_scaler: Num Vert Taps 6
-[  108.760371] xilinx-vpss-scaler a0080000.v_proc_ss_scaler: VPSS Scaler Probe Successful
-[  108.761173] xilinx-video axi:vcap_v_proc_ss_scaler: Entity type for entity a0080000.v_proc_ss_scaler was not initialized!
-[  108.761193] xilinx-video axi:vcap_v_proc_ss_scaler: Entity type for entity a0040000.v_proc_ss_csc was not initialized!
-[  108.761208] xilinx-video axi:vcap_v_proc_ss_scaler: Entity type for entity a0030000.v_gamma_lut was not initialized!
-[  108.761216] xilinx-video axi:vcap_v_proc_ss_scaler: Entity type for entity a0010000.v_demosaic was not initialized!
-[  108.761223] xilinx-video axi:vcap_v_proc_ss_scaler: Entity type for entity 80002000.mipi_csi2_rx_subsystem was not initialized!
-[  108.761233] xilinx-video axi:vcap_v_proc_ss_scaler: device registered
+[   85.936129] fpga_manager fpga0: writing raspi-camera-v2-kv260-w8x1-hp0.bin to Xilinx ZynqMP FPGA Manager
+[   86.401790] OF: overlay: WARNING: memory leak will occur if overlay removed, property: /fpga-full/firmware-name
+[   86.411905] OF: overlay: WARNING: memory leak will occur if overlay removed, property: /fpga-full/resets
+[   86.422212] OF: overlay: WARNING: memory leak will occur if overlay removed, property: /__symbols__/overlay0
+[   86.432060] OF: overlay: WARNING: memory leak will occur if overlay removed, property: /__symbols__/overlay1
+[   86.441893] OF: overlay: WARNING: memory leak will occur if overlay removed, property: /__symbols__/afi0
+[   86.451382] OF: overlay: WARNING: memory leak will occur if overlay removed, property: /__symbols__/clocking0
+[   86.461301] OF: overlay: WARNING: memory leak will occur if overlay removed, property: /__symbols__/clocking1
+[   86.471220] OF: overlay: WARNING: memory leak will occur if overlay removed, property: /__symbols__/overlay2
+[   86.481055] OF: overlay: WARNING: memory leak will occur if overlay removed, property: /__symbols__/imx219_vana
+[   86.491150] OF: overlay: WARNING: memory leak will occur if overlay removed, property: /__symbols__/imx219_vdig
+[   86.501275] OF: overlay: WARNING: memory leak will occur if overlay removed, property: /__symbols__/imx219_vddl
+[   86.511376] OF: overlay: WARNING: memory leak will occur if overlay removed, property: /__symbols__/imx219_clk
+[   86.521387] OF: overlay: WARNING: memory leak will occur if overlay removed, property: /__symbols__/overlay3
+[   86.531230] OF: overlay: WARNING: memory leak will occur if overlay removed, property: /__symbols__/axi_iic_0
+[   86.541160] OF: overlay: WARNING: memory leak will occur if overlay removed, property: /__symbols__/iic_mux_0
+[   86.551079] OF: overlay: WARNING: memory leak will occur if overlay removed, property: /__symbols__/isa0_i2c0
+[   86.561000] OF: overlay: WARNING: memory leak will occur if overlay removed, property: /__symbols__/isa1_i2c1
+[   86.570921] OF: overlay: WARNING: memory leak will occur if overlay removed, property: /__symbols__/rpi_i2c2
+[   86.580756] OF: overlay: WARNING: memory leak will occur if overlay removed, property: /__symbols__/imx219
+[   86.590417] OF: overlay: WARNING: memory leak will occur if overlay removed, property: /__symbols__/imx219_0
+[   86.600263] OF: overlay: WARNING: memory leak will occur if overlay removed, property: /__symbols__/misc_clk_0
+[   86.610272] OF: overlay: WARNING: memory leak will occur if overlay removed, property: /__symbols__/mipi_csi2_rx_subsyst_0
+[   86.621328] OF: overlay: WARNING: memory leak will occur if overlay removed, property: /__symbols__/mipi_csi_portsmipi_csi2_rx_subsyst_0
+[   86.633592] OF: overlay: WARNING: memory leak will occur if overlay removed, property: /__symbols__/mipi_csi_port1mipi_csi2_rx_subsyst_0
+[   86.645858] OF: overlay: WARNING: memory leak will occur if overlay removed, property: /__symbols__/mipi_csirx_outmipi_csi2_rx_subsyst_0
+[   86.658126] OF: overlay: WARNING: memory leak will occur if overlay removed, property: /__symbols__/mipi_csi_port0mipi_csi2_rx_subsyst_0
+[   86.670396] OF: overlay: WARNING: memory leak will occur if overlay removed, property: /__symbols__/mipi_csi_inmipi_csi2_rx_subsyst_0
+[   86.682401] OF: overlay: WARNING: memory leak will occur if overlay removed, property: /__symbols__/misc_clk_1
+[   86.692408] OF: overlay: WARNING: memory leak will occur if overlay removed, property: /__symbols__/v_demosaic_0
+[   86.702592] OF: overlay: WARNING: memory leak will occur if overlay removed, property: /__symbols__/demosaic_portsv_demosaic_0
+[   86.713998] OF: overlay: WARNING: memory leak will occur if overlay removed, property: /__symbols__/demosaic_port1v_demosaic_0
+[   86.725407] OF: overlay: WARNING: memory leak will occur if overlay removed, property: /__symbols__/demo_outv_demosaic_0
+[   86.736288] OF: overlay: WARNING: memory leak will occur if overlay removed, property: /__symbols__/demosaic_port0v_demosaic_0
+[   86.747684] OF: overlay: WARNING: memory leak will occur if overlay removed, property: /__symbols__/v_demosaic_0mipi_csi2_rx_subsyst_0
+[   86.759774] OF: overlay: WARNING: memory leak will occur if overlay removed, property: /__symbols__/v_frmbuf_wr_0
+[   86.770043] OF: overlay: WARNING: memory leak will occur if overlay removed, property: /__symbols__/v_gamma_lut_0
+[   86.780312] OF: overlay: WARNING: memory leak will occur if overlay removed, property: /__symbols__/gamma_portsv_gamma_lut_0
+[   86.791537] OF: overlay: WARNING: memory leak will occur if overlay removed, property: /__symbols__/gamma_port1v_gamma_lut_0
+[   86.802759] OF: overlay: WARNING: memory leak will occur if overlay removed, property: /__symbols__/gamma_outv_gamma_lut_0
+[   86.813808] OF: overlay: WARNING: memory leak will occur if overlay removed, property: /__symbols__/gamma_port0v_gamma_lut_0
+[   86.825032] OF: overlay: WARNING: memory leak will occur if overlay removed, property: /__symbols__/v_gamma_lut_0v_demosaic_0
+[   86.836342] OF: overlay: WARNING: memory leak will occur if overlay removed, property: /__symbols__/v_proc_ss_csc
+[   86.846610] OF: overlay: WARNING: memory leak will occur if overlay removed, property: /__symbols__/csc_portsv_proc_ss_csc
+[   86.857660] OF: overlay: WARNING: memory leak will occur if overlay removed, property: /__symbols__/csc_port1v_proc_ss_csc
+[   86.868710] OF: overlay: WARNING: memory leak will occur if overlay removed, property: /__symbols__/csc_outv_proc_ss_csc
+[   86.879596] OF: overlay: WARNING: memory leak will occur if overlay removed, property: /__symbols__/csc_port0v_proc_ss_csc
+[   86.890642] OF: overlay: WARNING: memory leak will occur if overlay removed, property: /__symbols__/v_proc_ss_cscv_gamma_lut_0
+[   86.902041] OF: overlay: WARNING: memory leak will occur if overlay removed, property: /__symbols__/v_proc_ss_scaler
+[   86.912570] OF: overlay: WARNING: memory leak will occur if overlay removed, property: /__symbols__/scaler_portsv_proc_ss_scaler
+[   86.924141] OF: overlay: WARNING: memory leak will occur if overlay removed, property: /__symbols__/scaler_port1v_proc_ss_scaler
+[   86.935711] OF: overlay: WARNING: memory leak will occur if overlay removed, property: /__symbols__/sca_outv_proc_ss_scaler
+[   86.946848] OF: overlay: WARNING: memory leak will occur if overlay removed, property: /__symbols__/scaler_port0v_proc_ss_scaler
+[   86.958419] OF: overlay: WARNING: memory leak will occur if overlay removed, property: /__symbols__/v_proc_ss_scalerv_proc_ss_csc
+[   86.970078] OF: overlay: WARNING: memory leak will occur if overlay removed, property: /__symbols__/vcap_portsv_proc_ss_scaler
+[   86.981473] OF: overlay: WARNING: memory leak will occur if overlay removed, property: /__symbols__/v_frmbuf_wr_0v_proc_ss_scaler
+[   87.061197] i2c i2c-3: Added multiplexed i2c bus 4
+[   87.061436] i2c i2c-3: Added multiplexed i2c bus 5
+[   87.061593] xilinx-frmbuf a0020000.v_frmbuf_wr: Xilinx AXI frmbuf DMA_DEV_TO_MEM
+[   87.061717] xilinx-frmbuf a0020000.v_frmbuf_wr: Xilinx AXI FrameBuffer Engine Driver Probed!!
+[   87.068997] i2c i2c-3: Added multiplexed i2c bus 6
+[   87.069416] i2c i2c-3: Added multiplexed i2c bus 7
+[   87.069431] pca954x 3-0074: registered 4 multiplexed busses for I2C switch pca9546
+[   87.134212] xilinx-demosaic a0010000.v_demosaic: Xilinx Video Demosaic Probe Successful
+[   87.187345] xilinx-gamma-lut a0030000.v_gamma_lut: Xilinx 8-bit Video Gamma Correction LUT registered
+[   87.189493] xilinx-vpss-csc a0040000.v_proc_ss_csc: VPSS CSC 8-bit Color Depth Probe Successful
+[   87.189822] xilinx-vpss-scaler a0080000.v_proc_ss_scaler: Num Hori Taps 6
+[   87.189829] xilinx-vpss-scaler a0080000.v_proc_ss_scaler: Num Vert Taps 6
+[   87.189834] xilinx-vpss-scaler a0080000.v_proc_ss_scaler: VPSS Scaler Probe Successful
+[   87.190358] xilinx-video axi:vcap_v_proc_ss_scaler: Entity type for entity a0080000.v_proc_ss_scaler was not initialized!
+[   87.190373] xilinx-video axi:vcap_v_proc_ss_scaler: Entity type for entity a0040000.v_proc_ss_csc was not initialized!
+[   87.190383] xilinx-video axi:vcap_v_proc_ss_scaler: Entity type for entity a0030000.v_gamma_lut was not initialized!
+[   87.190391] xilinx-video axi:vcap_v_proc_ss_scaler: Entity type for entity a0010000.v_demosaic was not initialized!
+[   87.190399] xilinx-video axi:vcap_v_proc_ss_scaler: Entity type for entity 80002000.mipi_csi2_rx_subsystem was not initialized!
+[   87.190409] xilinx-video axi:vcap_v_proc_ss_scaler: device registered
 ```
 
 Setup video4linux
@@ -185,12 +143,6 @@ Setup video4linux
 ```console
 shell$ sudo apt install -y yavta
 shell$ sudo apt install -y v4l-utils
-```
-
-### Download https://github.com/RyusukeYamano/Raspberry-Pi-Camera-v2-on-KV260
-
-```console
-shell$ git clone https://github.com/RyusukeYamano/Raspberry-Pi-Camera-v2-on-KV260
 ```
 
 ### Run tools/setup.sh
