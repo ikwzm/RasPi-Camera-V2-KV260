@@ -2,8 +2,8 @@
 #
 # Simple script for device tree overlay configure.
 #
-__copyright__='Copyright (C) 2022-2023 ikwzm'
-__version__='0.3'
+__copyright__='Copyright (C) 2022-2024 ikwzm'
+__version__='0.4'
 __license__='BSD-2-Clause'
 __author__='ikwzm'
 __author_email__='ichiro_k@ca2.so-net.ne.jp'
@@ -55,8 +55,8 @@ do_help()
     echo "        -v, --verbose      Turn on verbosity"
     echo "        -d, --debug        Turn on debug"
     echo "        -n, --dry-run      Don't actually run any command"
-    echo "        --dts DTS          Device Tree Overlay Source File"
-    echo "        --dtb DTB          Device Tree Overlay Blob File"
+    echo "        --dts DTS          Specify Device Tree Overlay Source File"
+    echo "        --dtb DTB          Specify Device Tree Overlay Blob File"
     echo ""
     echo "VARIABLES"
     echo "        DTS                Device Tree Overlay Source File"
@@ -252,7 +252,13 @@ while [ $# -gt 0 ]; do
     esac
 done
 
-if [ $need_name -gt 0 ]; then
+if [ $need_name -gt 0 ] && [ -z $DT_OVERLAY_NAME ]; then
+    if [ -n $DTB ]; then
+	DT_OVERLAY_NAME=`basename $DTB .dtb`
+    fi
+    if [ -n $DTS ]; then
+	DT_OVERLAY_NAME=`basename $DTS .dts`
+    fi
     if [ -z $DT_OVERLAY_NAME ]; then
         echo "$script_name: Please specify DT_OVERLAY_NAME. see '$script_name --help'."
         exit 1

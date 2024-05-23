@@ -53,7 +53,11 @@ shell$ sudo cp fpga/raspi-camera-v2-w8x1-hp0/raspi-camera-v2-kv260-w8x1-hp0.bin 
 ### Load Device Tree Overlay
 
 ```console
-shell$ sudo devicetrees/dtbo-config -i raspi-camera-v2-kv260-w8x1-hp0 --dts devicetrees/raspi-camera-v2-kv260-w8x1-hp0.dts
+shell$ sudo devicetrees/dtbo-config -v -i --dts devicetrees/raspi-camera-v2-kv260-w8x1-hp0.dts
+## devicetrees/dtbo-config: install raspi-camera-v2-kv260-w8x1-hp0 dts devicetrees/raspi-camera-v2-kv260-w8x1-hp0.dts
+mkdir /config/device-tree/overlays//raspi-camera-v2-kv260-w8x1-hp0
+cat devicetrees/raspi-camera-v2-kv260-w8x1-hp0.dts | dtc -@ -I dts -O dtb > /config/device-tree/overlays//raspi-camera-v2-kv260-w8x1-hp0/dtbo
+<stdin>:352.39-362.7: Warning (graph_child_address): /fragment@3/__overlay__/vcap_v_proc_ss_scaler/ports: graph node has single child node 'port@0', #address-cells/#size-cells are not necessary
 ```
 
 ```console
