@@ -14,7 +14,9 @@ dry_run=0
 command_list=""
 image_size="1920x1080"
 sensor_format="SRGGB10_1X10"
+image_format="RBG888_1X24"
 target_format="RBG888_1X24"
+media_ctl_command="tools/media-ctl"
 
 #
 # Video4Linux Devices
@@ -41,7 +43,7 @@ run_command()
 get_v4l2_subdev()
 {
     local entry=$(eval echo \"\$v4l2_entry_${1}\")
-    local command="media-ctl -e '${entry}'"
+    local command="${media_ctl_command} -e '${entry}'"
     local subdev=$(eval "${command}")
     if [ ! -e "$subdev" ]; then
 	echo $command  >&2
@@ -93,7 +95,7 @@ set_v4l2()
     local entry=$1
     local port=$2
     local value=$3
-    run_command "media-ctl -d ${v4l2_media_device} --set-v4l2 '\"${entry}\":${port} [${value}]'"
+    run_command "${media_ctl_command} -d ${v4l2_media_device} --set-v4l2 '\"${entry}\":${port} [${value}]'"
 }
 
 setup_imx219()
@@ -126,8 +128,12 @@ setup_demosaic()
     if [ $verbose -gt 0 ] || [ $debug_level -gt 0 ]; then
         echo "### Demosaic IP subdev2 ###"
     fi
-    set_v4l2 "${v4l2_entry_v_demosaic}" "0" "fmt:${src_format}/${image_size} field:none"
-    set_v4l2 "${v4l2_entry_v_demosaic}" "1" "fmt:${dst_format}/${image_size} field:none"
+    if [ -n "${src_format}" ]; then
+        set_v4l2 "${v4l2_entry_v_demosaic}" "0" "fmt:${src_format}/${image_size} field:none"
+    fi
+    if [ -n "${dst_format}" ]; then
+        set_v4l2 "${v4l2_entry_v_demosaic}" "1" "fmt:${dst_format}/${image_size} field:none"
+    fi
 }
 
 setup_gamma_lut()
@@ -137,25 +143,32 @@ setup_gamma_lut()
     if [ $verbose -gt 0 ] || [ $debug_level -gt 0 ]; then
         echo "### Gamma LUT IP ###"
     fi
-    set_v4l2 "${v4l2_entry_v_gamma_lut}" 0 "fmt:${format}/${image_size} field:none"
-    set_v4l2 "${v4l2_entry_v_gamma_lut}" 1 "fmt:${format}/${image_size} field:none"
+    if [ -n "${format}" ]; then
+        set_v4l2 "${v4l2_entry_v_gamma_lut}" 0 "fmt:${format}/${image_size} field:none"
+        set_v4l2 "${v4l2_entry_v_gamma_lut}" 1 "fmt:${format}/${image_size} field:none"
+    fi
     # Red   gain min 1 max 40 step 1 default 10 current 40
-    run_command "yavta --no-query -w '0x0098c9c1 10' ${v4l2_device_v_gamma_lut}"
+    run_command "yavta --no-query -w '0x0098c9c1 8' ${v4l2_device_v_gamma_lut}"
     # Blue  gain min 1 max 40 step 1 default 10 current 40
-    run_command "yavta --no-query -w '0x0098c9c2 10' ${v4l2_device_v_gamma_lut}"
+    run_command "yavta --no-query -w '0x0098c9c2 8' ${v4l2_device_v_gamma_lut}"
     # Green gain min 1 max 40 step 1 default 10 current 40
-    run_command "yavta --no-query -w '0x0098c9c3 10' ${v4l2_device_v_gamma_lut}"
+    run_command "yavta --no-query -w '0x0098c9c3 8' ${v4l2_device_v_gamma_lut}"
 }
 
 setup_proc_ss_csc()
 {
     local image_size=$1
-    local format=$2
+    local src_format=$2
+    local dst_format=$3
     if [ $verbose -gt 0 ] || [ $debug_level -gt 0 ]; then
         echo "### VPSS: Color Space Conversion (CSC) Only ###"
     fi
-    set_v4l2 "${v4l2_entry_v_proc_ss_csc}" 0 "fmt:${format}/${image_size} field:none"
-    set_v4l2 "${v4l2_entry_v_proc_ss_csc}" 1 "fmt:${format}/${image_size} field:none"
+    if [ -n "${src_format}" ]; then
+        set_v4l2 "${v4l2_entry_v_proc_ss_csc}" 0 "fmt:${src_format}/${image_size} field:none"
+    fi
+    if [ -n "${dst_format}" ]; then
+        set_v4l2 "${v4l2_entry_v_proc_ss_csc}" 1 "fmt:${dst_format}/${image_size} field:none"
+    fi
 }    
 
 setup_proc_ss_scaler()
@@ -165,18 +178,20 @@ setup_proc_ss_scaler()
     if [ $verbose -gt 0 ] || [ $debug_level -gt 0 ]; then
         echo "### VPSS: Scaler Only with CSC ###"
     fi
-    set_v4l2 "${v4l2_entry_v_proc_ss_scaler}" 0 "fmt:${format}/${image_size} field:none"
-    set_v4l2 "${v4l2_entry_v_proc_ss_scaler}" 1 "fmt:${format}/${image_size} field:none"
+    if [ -n "${format}" ]; then
+        set_v4l2 "${v4l2_entry_v_proc_ss_scaler}" 0 "fmt:${format}/${image_size} field:none"
+        set_v4l2 "${v4l2_entry_v_proc_ss_scaler}" 1 "fmt:${format}/${image_size} field:none"
+    fi
     # CSC Brightness' min 0 max 100 step 1 default 50 current 80
-    run_command "yavta -w '0x0098c9a1 90' ${v4l2_device_v_proc_ss_scaler}"
+    run_command "yavta -w '0x0098c9a1 90' ${v4l2_device_v_proc_ss_scaler} --no-query"
     # CSC Contrast'   min 0 max 100 step 1 default 50 current 55
-    run_command "yavta -w '0x0098c9a2 50' ${v4l2_device_v_proc_ss_scaler}"
+    run_command "yavta -w '0x0098c9a2 50' ${v4l2_device_v_proc_ss_scaler} --no-query"
     # CSC Red Gain'   min 0 max 100 step 1 default 50 current 35 
-    run_command "yavta -w '0x0098c9a3 35' ${v4l2_device_v_proc_ss_scaler}"
+    run_command "yavta -w '0x0098c9a3 35' ${v4l2_device_v_proc_ss_scaler} --no-query"
     # CSC Green Gain' min 0 max 100 step 1 default 50 current 24 
-    run_command "yavta -w '0x0098c9a4 24' ${v4l2_device_v_proc_ss_scaler}"
+    run_command "yavta -w '0x0098c9a4 24' ${v4l2_device_v_proc_ss_scaler} --no-query"
     # CSC Blue Gain'  min 0 max 100 step 1 default 50 current 40 
-    run_command "yavta -w '0x0098c9a5 40' ${v4l2_device_v_proc_ss_scaler}"
+    run_command "yavta -w '0x0098c9a5 40' ${v4l2_device_v_proc_ss_scaler} --no-query"
 }
 
 do_setup()
@@ -186,9 +201,9 @@ do_setup()
     
     setup_imx219         ${image_size} ${sensor_format}
     setup_mipi_csi2_rx   ${image_size} ${sensor_format}
-    setup_demosaic       ${image_size} ${sensor_format} ${target_format}
-    setup_gamma_lut      ${image_size} ${target_format}
-    setup_proc_ss_csc    ${image_size} ${target_format}
+    setup_demosaic       ${image_size} ${sensor_format} ${image_format}
+    setup_gamma_lut      ${image_size} ${image_format}
+    setup_proc_ss_csc    ${image_size} ${image_format}  ${target_format}
     setup_proc_ss_scaler ${image_size} ${target_format}
 
     ## set sensor gain ?
@@ -199,7 +214,7 @@ do_setup()
 do_show_pipeline()
 {
     echo "### show pipeline ###"
-    run_command "media-ctl -p"
+    run_command "${media_ctl_command} -p"
     run_command "v4l2-ctl -d ${v4l2_video_device} --list-formats"
 }
 
