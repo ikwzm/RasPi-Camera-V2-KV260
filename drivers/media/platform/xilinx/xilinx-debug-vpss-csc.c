@@ -373,7 +373,7 @@ xcsc_ycrcb_to_rgb(struct xcsc_dev *xcsc, s32 *clip_max,
 	 *
 	 * Coefficients valid only for BT 709
 	 */
-	dev_dbg(xcsc->xvip.dev, "Performing YCrCb to RGB BT 709");
+	dev_info(xcsc->xvip.dev, "Performing YCrCb to RGB BT 709");
 	xcsc_copy_coeff(temp, ycrcb_to_rgb_unity);
 	temp[0][3] = -248 * bpc_scale;
 	temp[1][3] = 77 * bpc_scale;
@@ -428,7 +428,7 @@ xcsc_rgb_to_ycrcb(struct xcsc_dev *xcsc, s32 *clip_max,
 	 *
 	 * Coefficients valid only for BT 709
 	 */
-	dev_dbg(xcsc->xvip.dev, "Performing RGB to YCrCb BT 709");
+	dev_info(xcsc->xvip.dev, "Performing RGB to YCrCb BT 709");
 	xcsc_copy_coeff(temp, rgb_to_ycrcb_unity);
 	temp[0][3] = 16 * bpc_scale;
 	temp[1][3] = 128 * bpc_scale;
@@ -447,22 +447,22 @@ static int xcsc_update_formats(struct xcsc_dev *xcsc)
 	switch (color_in) {
 	case MEDIA_BUS_FMT_RBG888_1X24:
 	case MEDIA_BUS_FMT_RBG101010_1X30:
-		dev_dbg(xcsc->xvip.dev, "Media Format In : RGB");
+		dev_info(xcsc->xvip.dev, "Media Format In : RGB");
 		xcsc->cft_in = XVIDC_CSF_RGB;
 		break;
 	case MEDIA_BUS_FMT_VUY8_1X24:
 	case MEDIA_BUS_FMT_VUY10_1X30:
-		dev_dbg(xcsc->xvip.dev, "Media Format In : YUV 444");
+		dev_info(xcsc->xvip.dev, "Media Format In : YUV 444");
 		xcsc->cft_in = XVIDC_CSF_YCRCB_444;
 		break;
 	case MEDIA_BUS_FMT_UYVY8_1X16:
 	case MEDIA_BUS_FMT_UYVY10_1X20:
-		dev_dbg(xcsc->xvip.dev, "Media Format In : YUV 422");
+		dev_info(xcsc->xvip.dev, "Media Format In : YUV 422");
 		xcsc->cft_in = XVIDC_CSF_YCRCB_422;
 		break;
 	case MEDIA_BUS_FMT_VYYUYY8_1X24:
 	case MEDIA_BUS_FMT_VYYUYY10_4X20:
-		dev_dbg(xcsc->xvip.dev, "Media Format In : YUV 420");
+		dev_info(xcsc->xvip.dev, "Media Format In : YUV 420");
 		xcsc->cft_in = XVIDC_CSF_YCRCB_420;
 		break;
 	}
@@ -471,7 +471,7 @@ static int xcsc_update_formats(struct xcsc_dev *xcsc)
 	case MEDIA_BUS_FMT_RBG888_1X24:
 	case MEDIA_BUS_FMT_RBG101010_1X30:
 		xcsc->cft_out = XVIDC_CSF_RGB;
-		dev_dbg(xcsc->xvip.dev, "Media Format Out : RGB");
+		dev_info(xcsc->xvip.dev, "Media Format Out : RGB");
 		if (color_in != MEDIA_BUS_FMT_RBG888_1X24)
 			xcsc_ycrcb_to_rgb(xcsc, &xcsc->clip_max, xcsc->k_hw);
 		else
@@ -480,7 +480,7 @@ static int xcsc_update_formats(struct xcsc_dev *xcsc)
 	case MEDIA_BUS_FMT_VUY8_1X24:
 	case MEDIA_BUS_FMT_VUY10_1X30:
 		xcsc->cft_out = XVIDC_CSF_YCRCB_444;
-		dev_dbg(xcsc->xvip.dev, "Media Format Out : YUV 444");
+		dev_info(xcsc->xvip.dev, "Media Format Out : YUV 444");
 		if (color_in == MEDIA_BUS_FMT_RBG888_1X24)
 			xcsc_rgb_to_ycrcb(xcsc, &xcsc->clip_max, xcsc->k_hw);
 		else
@@ -489,7 +489,7 @@ static int xcsc_update_formats(struct xcsc_dev *xcsc)
 	case MEDIA_BUS_FMT_UYVY8_1X16:
 	case MEDIA_BUS_FMT_UYVY10_1X20:
 		xcsc->cft_out = XVIDC_CSF_YCRCB_422;
-		dev_dbg(xcsc->xvip.dev, "Media Format Out : YUV 422");
+		dev_info(xcsc->xvip.dev, "Media Format Out : YUV 422");
 		if (color_in == MEDIA_BUS_FMT_RBG888_1X24)
 			xcsc_rgb_to_ycrcb(xcsc, &xcsc->clip_max, xcsc->k_hw);
 		else
@@ -498,7 +498,7 @@ static int xcsc_update_formats(struct xcsc_dev *xcsc)
 	case MEDIA_BUS_FMT_VYYUYY8_1X24:
 	case MEDIA_BUS_FMT_VYYUYY10_4X20:
 		xcsc->cft_out = XVIDC_CSF_YCRCB_420;
-		dev_dbg(xcsc->xvip.dev, "Media Format Out : YUV 420");
+		dev_info(xcsc->xvip.dev, "Media Format Out : YUV 420");
 		if (color_in ==  MEDIA_BUS_FMT_RBG888_1X24)
 			xcsc_rgb_to_ycrcb(xcsc, &xcsc->clip_max, xcsc->k_hw);
 		else
@@ -561,22 +561,22 @@ xcsc_correct_coeff(struct xcsc_dev *xcsc,
 	xcsc_log_coeff(xcsc->xvip.dev, temp);
 #endif
 	if (mbus_in == MEDIA_BUS_FMT_RBG888_1X24 && mbus_out == mbus_in) {
-		dev_dbg(xcsc->xvip.dev, "%s : RGB to RGB", __func__);
+		dev_info(xcsc->xvip.dev, "%s : RGB to RGB", __func__);
 		xcsc_copy_coeff(xcsc->k_hw,
 				(const s32 (*)[XV_CSC_K_MAX_COLUMNS + 1])temp);
 	} else if (mbus_in == MEDIA_BUS_FMT_RBG888_1X24 &&
 		   mbus_out != MEDIA_BUS_FMT_RBG888_1X24) {
-		dev_dbg(xcsc->xvip.dev, "%s : RGB to YUV", __func__);
+		dev_info(xcsc->xvip.dev, "%s : RGB to YUV", __func__);
 		xcsc_rgb_to_ycrcb(xcsc, &xcsc->clip_max, csc_change);
 		xcsc_matrix_multiply(temp, csc_change, xcsc->k_hw);
 	} else if (mbus_in != MEDIA_BUS_FMT_RBG888_1X24 &&
 		   mbus_out == MEDIA_BUS_FMT_RBG888_1X24) {
-		dev_dbg(xcsc->xvip.dev, "%s : YUV to RGB", __func__);
+		dev_info(xcsc->xvip.dev, "%s : YUV to RGB", __func__);
 		xcsc_ycrcb_to_rgb(xcsc, &xcsc->clip_max, csc_change);
 		xcsc_matrix_multiply(csc_change, temp, xcsc->k_hw);
 	} else if (mbus_in != MEDIA_BUS_FMT_RBG888_1X24 &&
 		   mbus_out != MEDIA_BUS_FMT_RBG888_1X24) {
-		dev_dbg(xcsc->xvip.dev, "%s : YUV to YUV", __func__);
+		dev_info(xcsc->xvip.dev, "%s : YUV to YUV", __func__);
 		xcsc_ycrcb_to_rgb(xcsc, &xcsc->clip_max, csc_change);
 		xcsc_matrix_multiply(csc_change, temp, csc_extra);
 		xcsc_rgb_to_ycrcb(xcsc, &xcsc->clip_max, csc_change);
@@ -591,7 +591,7 @@ static void xcsc_set_brightness(struct xcsc_dev *xcsc)
 {
 	unsigned int i, j;
 
-	dev_dbg(xcsc->xvip.dev,
+	dev_info(xcsc->xvip.dev,
 		"%s : Brightness %d Brightness Active %d",
 		__func__,
 		((xcsc->brightness - 20) / 2),
@@ -620,7 +620,7 @@ static void xcsc_set_contrast(struct xcsc_dev *xcsc)
 	u8 scale = BIT(xcsc->color_depth - 8);
 
 	contrast = xcsc->contrast - xcsc->contrast_active;
-	dev_dbg(xcsc->xvip.dev,
+	dev_info(xcsc->xvip.dev,
 		"%s : Contrast Difference %d scale = %d",
 		__func__, contrast, scale);
 	/* Avoid updates if same */
@@ -641,7 +641,7 @@ static void xcsc_set_contrast(struct xcsc_dev *xcsc)
 
 static void xcsc_set_red_gain(struct xcsc_dev *xcsc)
 {
-	dev_dbg(xcsc->xvip.dev,
+	dev_info(xcsc->xvip.dev,
 		"%s: Red Gain %d Red Gain Active %d", __func__,
 		(xcsc->red_gain - 20) / 2,
 		(xcsc->red_gain_active - 20) / 2);
@@ -668,7 +668,7 @@ static void xcsc_set_red_gain(struct xcsc_dev *xcsc)
 
 static void xcsc_set_green_gain(struct xcsc_dev *xcsc)
 {
-	dev_dbg(xcsc->xvip.dev,
+	dev_info(xcsc->xvip.dev,
 		"%s: Green Gain %d Green Gain Active %d", __func__,
 		 (xcsc->green_gain - 20) / 2,
 		 (xcsc->green_gain_active - 20) / 2);
@@ -695,7 +695,7 @@ static void xcsc_set_green_gain(struct xcsc_dev *xcsc)
 
 static void xcsc_set_blue_gain(struct xcsc_dev *xcsc)
 {
-	dev_dbg(xcsc->xvip.dev,
+	dev_info(xcsc->xvip.dev,
 		"%s: Blue Gain %d Blue Gain Active %d", __func__,
 		 (xcsc->blue_gain - 20) / 2,
 		 (xcsc->blue_gain_active - 20) / 2);
@@ -736,7 +736,7 @@ static int xcsc_s_stream(struct v4l2_subdev *subdev, int enable)
 {
 	struct xcsc_dev *xcsc = to_csc(subdev);
 
-	dev_dbg(xcsc->xvip.dev, "%s : Stream %s", __func__,
+	dev_info(xcsc->xvip.dev, "%s : Stream %s", __func__,
 		enable ? "On" : "Off");
 	if (!enable) {
 		/* Reset the Global IP Reset through PS GPIO */

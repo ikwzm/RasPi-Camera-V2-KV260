@@ -113,7 +113,7 @@ static int xdmsc_s_stream(struct v4l2_subdev *subdev, int enable)
 	struct xdmsc_dev *xdmsc = to_xdmsc(subdev);
 
 	if (!enable) {
-		dev_dbg(xdmsc->xvip.dev, "%s : Off", __func__);
+		dev_info(xdmsc->xvip.dev, "%s : Off", __func__);
 		gpiod_set_value_cansleep(xdmsc->rst_gpio,
 					 XDEMOSAIC_RESET_ASSERT);
 		gpiod_set_value_cansleep(xdmsc->rst_gpio,
@@ -186,7 +186,7 @@ xdmsc_is_format_bayer(struct xdmsc_dev *xdmsc, u32 code)
 		xdmsc->bayer_fmt = XDEMOSAIC_BGGR;
 		break;
 	default:
-		dev_dbg(xdmsc->xvip.dev, "Unsupported format for Sink Pad");
+		dev_info(xdmsc->xvip.dev, "Unsupported format for Sink Pad");
 		return false;
 	}
 	return true;

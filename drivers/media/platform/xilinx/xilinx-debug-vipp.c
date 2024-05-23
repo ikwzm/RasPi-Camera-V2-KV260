@@ -106,7 +106,7 @@ static int xvip_graph_build_one(struct xvip_composite_device *xdev,
 	struct fwnode_handle *ep = NULL;
 	int ret = 0;
 
-	dev_dbg(xdev->dev, "creating links for entity %s\n", local->name);
+	dev_info(xdev->dev, "creating links for entity %s\n", local->name);
 
 	while (1) {
 		/* Get the next endpoint and parse its link. */
@@ -115,7 +115,7 @@ static int xvip_graph_build_one(struct xvip_composite_device *xdev,
 		if (ep == NULL)
 			break;
 
-		dev_dbg(xdev->dev, "processing endpoint %p\n", ep);
+		dev_info(xdev->dev, "processing endpoint %p\n", ep);
 
 		ret = v4l2_fwnode_parse_link(ep, &link);
 		if (ret < 0) {
@@ -138,7 +138,7 @@ static int xvip_graph_build_one(struct xvip_composite_device *xdev,
 		local_pad = &local->pads[link.local_port];
 
 		if (local_pad->flags & MEDIA_PAD_FL_SINK) {
-			dev_dbg(xdev->dev, "skipping sink port %p:%u\n",
+			dev_info(xdev->dev, "skipping sink port %p:%u\n",
 				link.local_node, link.local_port);
 			v4l2_fwnode_put_link(&link);
 			continue;
@@ -146,7 +146,7 @@ static int xvip_graph_build_one(struct xvip_composite_device *xdev,
 
 		/* Skip DMA engines, they will be processed separately. */
 		if (link.remote_node == of_fwnode_handle(xdev->dev->of_node)) {
-			dev_dbg(xdev->dev, "skipping DMA port %p:%u\n",
+			dev_info(xdev->dev, "skipping DMA port %p:%u\n",
 				link.local_node, link.local_port);
 			v4l2_fwnode_put_link(&link);
 			continue;
@@ -177,7 +177,7 @@ static int xvip_graph_build_one(struct xvip_composite_device *xdev,
 		v4l2_fwnode_put_link(&link);
 
 		/* Create the media link. */
-		dev_dbg(xdev->dev, "creating %s:%u -> %s:%u link\n",
+		dev_info(xdev->dev, "creating %s:%u -> %s:%u link\n",
 			local->name, local_pad->index,
 			remote->name, remote_pad->index);
 
@@ -498,7 +498,7 @@ static int xvip_graph_notify_complete(struct v4l2_async_notifier *notifier)
 	struct v4l2_async_subdev *asd;
 	int ret;
 
-	dev_dbg(xdev->dev, "notify complete, all subdevs registered\n");
+	dev_info(xdev->dev, "notify complete, all subdevs registered\n");
 
 	/* Create links for every entity. */
 	list_for_each_entry(asd, &xdev->notifier.asd_list, asd_list) {
@@ -544,7 +544,7 @@ static int xvip_graph_notify_bound(struct v4l2_async_notifier *notifier,
 			return -EINVAL;
 		}
 
-		dev_dbg(xdev->dev, "subdev %s bound\n", subdev->name);
+		dev_info(xdev->dev, "subdev %s bound\n", subdev->name);
 		entity->entity = &subdev->entity;
 		entity->subdev = subdev;
 		return 0;
@@ -566,7 +566,7 @@ static int xvip_graph_parse_one(struct xvip_composite_device *xdev,
 	struct fwnode_handle *ep = NULL;
 	int ret = 0;
 
-	dev_dbg(xdev->dev, "parsing node %p\n", fwnode);
+	dev_info(xdev->dev, "parsing node %p\n", fwnode);
 
 	while (1) {
 		struct xvip_graph_entity *xge;
@@ -575,7 +575,7 @@ static int xvip_graph_parse_one(struct xvip_composite_device *xdev,
 		if (ep == NULL)
 			break;
 
-		dev_dbg(xdev->dev, "handling endpoint %p\n", ep);
+		dev_info(xdev->dev, "handling endpoint %p\n", ep);
 
 		remote = fwnode_graph_get_remote_port_parent(ep);
 		if (remote == NULL) {
