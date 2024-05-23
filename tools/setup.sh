@@ -76,6 +76,9 @@ v4l2_device_v_demosaic=$(get_v4l2_subdev "v_demosaic")
 #
 v4l2_entry_v_gamma_lut="a0030000.v_gamma_lut"
 v4l2_device_v_gamma_lut=$(get_v4l2_subdev "v_gamma_lut")
+V4L2_CID_XILINX_GAMMA_CORR_RED_GAMMA="0x0098c9c1"
+V4L2_CID_XILINX_GAMMA_CORR_BLUE_GAMMA="0x0098c9c2"
+V4L2_CID_XILINX_GAMMA_CORR_GREEN_GAMMA="0x0098c9c3"
 
 #
 # VPSS: Color Space Conversion (CSC) Only
@@ -88,7 +91,11 @@ v4l2_device_v_proc_ss_csc=$(get_v4l2_subdev "v_proc_ss_csc")
 #
 v4l2_entry_v_proc_ss_scaler="a0080000.v_proc_ss_scaler"
 v4l2_device_v_proc_ss_scaler=$(get_v4l2_subdev "v_proc_ss_scaler")
-
+V4L2_CID_XILINX_CSC_BRIGHTNESS="0x0098c9a1"
+V4L2_CID_XILINX_CSC_CONTRAST="0x0098c9a2"
+V4L2_CID_XILINX_CSC_RED_GAIN="0x0098c9a3"
+V4L2_CID_XILINX_CSC_GREEN_GAIN="0x0098c9a4"
+V4L2_CID_XILINX_CSC_BLUE_GAIN="0x0098c9a5"
 
 set_v4l2()
 {
@@ -147,12 +154,22 @@ setup_gamma_lut()
         set_v4l2 "${v4l2_entry_v_gamma_lut}" 0 "fmt:${format}/${image_size} field:none"
         set_v4l2 "${v4l2_entry_v_gamma_lut}" 1 "fmt:${format}/${image_size} field:none"
     fi
-    # Red   gain min 1 max 40 step 1 default 10 current 40
-    run_command "yavta --no-query -w '0x0098c9c1 8' ${v4l2_device_v_gamma_lut}"
-    # Blue  gain min 1 max 40 step 1 default 10 current 40
-    run_command "yavta --no-query -w '0x0098c9c2 8' ${v4l2_device_v_gamma_lut}"
-    # Green gain min 1 max 40 step 1 default 10 current 40
-    run_command "yavta --no-query -w '0x0098c9c3 8' ${v4l2_device_v_gamma_lut}"
+}
+
+set_gamma_lut_gain_red()
+{
+    # Red   gain min 1 max 40 step 1 default 10 
+    run_command "yavta --no-query -w '${V4L2_CID_XILINX_GAMMA_CORR_RED_GAMMA} $1' ${v4l2_device_v_gamma_lut}"
+}
+set_gamma_lut_gain_blue()
+{
+    # Blue  gain min 1 max 40 step 1 default 10 
+    run_command "yavta --no-query -w '${V4L2_CID_XILINX_GAMMA_CORR_BLUE_GAMMA} $1' ${v4l2_device_v_gamma_lut}"
+}
+set_gamma_lut_gain_green()
+{
+    # Green gain min 1 max 40 step 1 default 10 
+    run_command "yavta --no-query -w '${V4L2_CID_XILINX_GAMMA_CORR_GREEN_GAMMA} $1' ${v4l2_device_v_gamma_lut}"
 }
 
 setup_proc_ss_csc()
@@ -182,16 +199,32 @@ setup_proc_ss_scaler()
         set_v4l2 "${v4l2_entry_v_proc_ss_scaler}" 0 "fmt:${format}/${image_size} field:none"
         set_v4l2 "${v4l2_entry_v_proc_ss_scaler}" 1 "fmt:${format}/${image_size} field:none"
     fi
+}
+
+set_proc_ss_scaler_brightness()
+{
     # CSC Brightness' min 0 max 100 step 1 default 50 current 80
-    run_command "yavta -w '0x0098c9a1 90' ${v4l2_device_v_proc_ss_scaler} --no-query"
+    run_command "yavta -w '${V4L2_CID_XILINX_CSC_BRIGHTNESS} $1' ${v4l2_device_v_proc_ss_scaler} --no-query"
+}
+set_proc_ss_scaler_contrast()
+{
     # CSC Contrast'   min 0 max 100 step 1 default 50 current 55
-    run_command "yavta -w '0x0098c9a2 50' ${v4l2_device_v_proc_ss_scaler} --no-query"
+    run_command "yavta -w '${V4L2_CID_XILINX_CSC_CONTRAST} $1' ${v4l2_device_v_proc_ss_scaler} --no-query"
+}
+set_proc_ss_scaler_gain_red()
+{
     # CSC Red Gain'   min 0 max 100 step 1 default 50 current 35 
-    run_command "yavta -w '0x0098c9a3 35' ${v4l2_device_v_proc_ss_scaler} --no-query"
+run_command "yavta -w '${V4L2_CID_XILINX_CSC_RED_GAIN} $1' ${v4l2_device_v_proc_ss_scaler} --no-query"
+}
+set_proc_ss_scaler_gain_green()
+{
     # CSC Green Gain' min 0 max 100 step 1 default 50 current 24 
-    run_command "yavta -w '0x0098c9a4 24' ${v4l2_device_v_proc_ss_scaler} --no-query"
+    run_command "yavta -w '${V4L2_CID_XILINX_CSC_GREEN_GAIN} $1' ${v4l2_device_v_proc_ss_scaler} --no-query"
+}
+set_proc_ss_scaler_gain_blue()
+{
     # CSC Blue Gain'  min 0 max 100 step 1 default 50 current 40 
-    run_command "yavta -w '0x0098c9a5 40' ${v4l2_device_v_proc_ss_scaler} --no-query"
+    run_command "yavta -w '${V4L2_CID_XILINX_CSC_BLUE_GAIN} $1' ${v4l2_device_v_proc_ss_scaler} --no-query"
 }
 
 do_setup()
@@ -205,6 +238,18 @@ do_setup()
     setup_gamma_lut      ${image_size} ${image_format}
     setup_proc_ss_csc    ${image_size} ${image_format}  ${target_format}
     setup_proc_ss_scaler ${image_size} ${target_format}
+
+    ## set gamma_lut gain
+    set_gamma_lut_gain_red   "10"
+    set_gamma_lut_gain_blue  "10"
+    set_gamma_lut_gain_green "10"
+
+    ## set proc_ss_scaler
+    set_proc_ss_scaler_brightness "80"
+    set_proc_ss_scaler_contrast   "65"
+    set_proc_ss_scaler_gain_red   "35"
+    set_proc_ss_scaler_gain_blue  "40"    
+    set_proc_ss_scaler_gain_green "24"
 
     ## set sensor gain ?
     run_command "v4l2-ctl --set-ctrl=analogue_gain=120"
