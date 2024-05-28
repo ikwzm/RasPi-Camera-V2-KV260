@@ -9,8 +9,8 @@ Overvier
 This repository provides PL(Programmable Logic) for using the Raspberry Pi Camera-V2 with the KV260.
 The PL and Device Tree provided in this repository is based on the blog shown at the following URL.
 
-  * https://forxai.konicaminolta.com/blog/30
-  * https://forxai.konicaminolta.com/blog/31
+  * ~https://forxai.konicaminolta.com/blog/30~ -> https://forxai.konicaminolta.com/blog/pdf/030.pdf
+  * ~https://forxai.konicaminolta.com/blog/31~ -> https://forxai.konicaminolta.com/blog/pdf/031.pdf
 
 I would like to take this opportunity to thank them.
 
