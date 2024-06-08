@@ -347,3 +347,37 @@ Setting pipeline to NULL ...
 Freeing pipeline ...
 ```
 
+### Run example/v4l2_capture_simple/v4l2_capture_mplane_mmap
+
+```console
+shell$ sudo sudo example/v4l2_capture_simple/v4l2_capture_mplane_mmap
+Frame :
+  Width   : 1920
+  Height  : 1080
+Frames    : 10
+Proc Time : # Average Per Frame
+  Total   : 0.120384447 #[Second]
+  Wait    : 0.008633502 #[Second]
+  Dequeue : 0.000008058 #[Second]
+  Run     : 0.111699128 #[Second]
+  Enqueue : 0.000042049 #[Second]
+FPS       : 8.306720891 #[Frames Per Second]
+```
+
+### Run example/v4l2_capture_simple/v4l2_capture_mplane_dma_heap
+
+```console
+shell$ sudo example/v4l2_capture_simple/v4l2_capture_mplane_dma_heap
+Frame :
+  Width   : 1920
+  Height  : 1080
+Frames    : 10
+Proc Time : # Average Per Frame
+  Total   : 0.040563366 #[Second]
+  Wait    : 0.019831294 #[Second]
+  Dequeue : 0.000007165 #[Second]
+  Run     : 0.020678163 #[Second]
+  Enqueue : 0.000045096 #[Second]
+FPS       : 24.652786458 #[Frames Per Second]
+```
+
