@@ -350,7 +350,7 @@ Freeing pipeline ...
 ### Run example/v4l2_capture_simple/v4l2_capture_mplane_mmap
 
 ```console
-shell$ sudo sudo example/v4l2_capture_simple/v4l2_capture_mplane_mmap
+shell$ sudo example/v4l2_capture_simple/v4l2_capture_mplane_mmap
 Frame :
   Width   : 1920
   Height  : 1080
