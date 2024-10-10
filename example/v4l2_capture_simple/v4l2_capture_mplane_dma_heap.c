@@ -13,6 +13,7 @@
 #include <sys/mman.h>
 #include <poll.h>
 #include <linux/dma-heap.h>
+#include <linux/dma-buf.h>
 #include <linux/videodev2.h>
 
 #define  VIDEO_DEVICE_FILE		"/dev/video0"
@@ -40,6 +41,7 @@ int main(int argc, char** argv)
         int                        dma_heap_fd = 0;
 	int                        num_planes  = 0;
 	int                        num_buffers = 0;
+	int                        skip_sync   = 0;
 	struct v4l2_capability     v4l2_cap;
 	struct v4l2_format         v4l2_fmt;
 	struct v4l2_requestbuffers v4l2_reqbuf;
@@ -241,10 +243,34 @@ int main(int argc, char** argv)
 		// 9.3 Process Captured Buffer
 		//
 		proc_run_start(count);
+		if (skip_sync == 0) {
+			for (int plane = 0; plane < num_planes; plane++) {
+				int dma_buf_fd = v4l2_planes[buf_index][plane].m.fd;
+				const struct dma_buf_sync dma_buf_sync = {
+					.flags = DMA_BUF_SYNC_READ | DMA_BUF_SYNC_START
+				};
+				if (ioctl(dma_buf_fd, DMA_BUF_IOCTL_SYNC, &dma_buf_sync)) {
+					perror("DMA_BUF_IOCTL_SYNC START");
+					return EXIT_FAILURE;
+				}
+			}
+		}
 		for (int plane = 0; plane < num_planes; plane++) {
 			void*  buf_start = buffers[buf_index][plane].start;
 			size_t buf_size  = buffers[buf_index][plane].length;
 			proc_run(count, buf_index, plane, buf_start, buf_size);
+		}
+		if (skip_sync == 0) {
+			for (int plane = 0; plane < num_planes; plane++) {
+				int dma_buf_fd = v4l2_planes[buf_index][plane].m.fd;
+				const struct dma_buf_sync dma_buf_sync = {
+					.flags = DMA_BUF_SYNC_READ | DMA_BUF_SYNC_END
+				};
+				if (ioctl(dma_buf_fd, DMA_BUF_IOCTL_SYNC, &dma_buf_sync)) {
+					perror("DMA_BUF_IOCTL_SYNC END");
+					return EXIT_FAILURE;
+				}
+			}
 		}
 		proc_run_done(count);
 		//
