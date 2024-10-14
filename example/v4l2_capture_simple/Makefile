@@ -5,8 +5,9 @@
 #
 
 CC            = gcc -g
-TARGET_LIST   = v4l2_capture_mplane_mmap     \
-                v4l2_capture_mplane_dma_heap \
+TARGET_LIST   = v4l2_capture_mplane_mmap             \
+                v4l2_capture_mplane_dma_heap         \
+                v4l2_capture_mplane_u_dma_buf_export \
                 $(END_LIST)
 INCLUDE_FILES = bmp.h proc_sample.h
 
